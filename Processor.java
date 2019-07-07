@@ -36,6 +36,12 @@ public class Processor
 
     }
 
+    public long getChatID() {
+        return ChatID;
+    }
+    public void setChatID(long chatID) {
+        ChatID = chatID;
+    }
     public int getTimer() {
         return timer;
     }
@@ -71,6 +77,14 @@ public class Processor
         {
             System.out.println("Íåâåðíûé íîìåð òåëåôîíà!");
         }
+    }
+
+    public boolean IsInProcessor(long ChatID)
+    {
+        if (this.ChatID==ChatID)
+            return true;
+        else
+            return false;
     }
 
 

@@ -1,9 +1,10 @@
 public class ListArray
 {
     private int numberList;
-    private List Begin;
-    private List End;
+    private Table Begin;
+    private Table End;
     private int timer;
+    FileWork file;
     ListArray(int timer)
     {
         this.numberList=0;
@@ -15,7 +16,29 @@ public class ListArray
     public void addList(int tableSize)
     {
         numberList++;
-        List NewList=new List(timer,numberList,tableSize);
+        Table NewList=new Table(timer,numberList,tableSize);
+        if (Begin==null&&End==null)
+        {
+            Begin = NewList;
+            End = NewList;
+        }
+        else
+        {
+            End.setNext(NewList);
+            End=End.getNext();
+        }
+
+        try {
+            this.file.WriteIntoExcel(this.Begin);;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+    public void hardAddList(int tableSize,int timer,int numberList)
+    {
+        Table NewList=new Table(timer,numberList,tableSize);
         if (Begin==null&&End==null)
         {
             Begin = NewList;
@@ -27,25 +50,41 @@ public class ListArray
             End=End.getNext();
         }
     }
-    public void fixList(List pointer)
+    public void start()
+    {
+        try {
+            file=new FileWork(this);
+            file.ReadFromExcel();
+        } catch (Exception e) {
+            // TODO Автоматически созданный блок catch
+            e.printStackTrace();
+        }
+    }
+    public void fixList(Table pointer)
     {
         while (pointer!=null)
         {
             pointer.setListNum(pointer.getListNum()-1);
             pointer=pointer.getNext();
         }
-
     }
     public boolean deleteList(int ListNum)
     {
-        List pointer=Begin;
-        List prev=Begin;
+        Table pointer=Begin;
+        Table prev=Begin;
         numberList--;
         if (Begin.getListNum()==ListNum)
         {
             Begin=Begin.getNext();
             pointer.setNext(null);
             this.fixList(Begin);
+            try {
+                this.file.WriteIntoExcel(this.Begin);;
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
             return true;
         }
         while (pointer!=null)
@@ -63,18 +102,32 @@ public class ListArray
                     pointer.setNext(null);
                     fixList(prev.getNext());
                 }
+                try {
+                    this.file.WriteIntoExcel(this.Begin);;
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
                 return true;
             }
             prev=pointer;
             pointer=pointer.getNext();
         }
         numberList++;
+        try {
+            this.file.WriteIntoExcel(this.Begin);;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         return false;
     }
     public int numberList()
     {
         int i=0;
-        List pointer=Begin;
+        Table pointer=Begin;
         while (pointer!=null)
         {
             i++;
@@ -84,25 +137,72 @@ public class ListArray
     }
     public boolean add(int AmountPeople,long ChatID)
     {
-        List pointer=Begin;
-        if (this.userInQueue(ChatID)==-1)
+        Table PriorPointer=null;
+        Table pointer=Begin;
+        int priority=-1;
+        if (this.userInQueue(ChatID)==-1 && this.userInProcessor(ChatID)==-1)
         {
             while (pointer != null)
             {
                 if (pointer.getTableSize() >= AmountPeople && pointer.accessStatus()==true)
                 {
-                    pointer.add(ChatID);
-                    return true;
+                    if (priority==-1)
+                    {
+                        priority=pointer.getPriority(AmountPeople);
+                        PriorPointer=pointer;
+                    }
+                    if (priority>pointer.getPriority(AmountPeople))
+                    {
+                        priority=pointer.getPriority(AmountPeople);
+                        PriorPointer=pointer;
+                    }
                 }
                 pointer = pointer.getNext();
             }
+            PriorPointer.add(ChatID);
+            try {
+                this.file.WriteIntoExcel(this.Begin);;
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            return true;
         }
         return false;
     }
-
+    public void hardAdd(int ListNum, long ChatID, int Number)
+    {
+        Table pointer=Begin;
+        while (pointer!=null)
+        {
+            if (pointer.getListNum()==ListNum)
+            {
+                pointer.hardAdd(ChatID, Number);
+                return;
+            }
+            pointer=pointer.getNext();
+        }
+        try {
+            this.file.WriteIntoExcel(this.Begin);;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+    public void hardEnd()
+    {
+        Table pointer=Begin;
+        while (pointer!=null)
+        {
+            pointer.hardEnd();
+            pointer=pointer.getNext();
+        }
+    }
     public void out(int numberList)
     {
-        List pointer=Begin;
+        Table pointer=Begin;
         while (pointer!=null)
         {
             if (pointer.getListNum()==numberList)
@@ -116,7 +216,7 @@ public class ListArray
 
     public void delete(int numberList,int Number)
     {
-        List pointer=Begin;
+        Table pointer=Begin;
         while (pointer!=null)
         {
             if (pointer.getListNum()==numberList)
@@ -126,10 +226,17 @@ public class ListArray
             }
             pointer=pointer.getNext();
         }
+        try {
+            this.file.WriteIntoExcel(this.Begin);;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
     public void delete(int numberList, long ChatID)
     {
-        List pointer=Begin;
+        Table pointer=Begin;
         while (pointer!=null)
         {
             if (pointer.getListNum()==numberList)
@@ -139,11 +246,18 @@ public class ListArray
             }
             pointer=pointer.getNext();
         }
+        try {
+            this.file.WriteIntoExcel(this.Begin);;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public void checker()
     {
-        List pointer=Begin;
+        Table pointer=Begin;
         while (pointer!=null)
         {
             pointer.checker();
@@ -152,7 +266,7 @@ public class ListArray
     }
     public void info(int numberList)
     {
-        List pointer=Begin;
+        Table pointer=Begin;
         while (pointer!=null)
         {
             if (pointer.getListNum()==numberList)
@@ -165,7 +279,7 @@ public class ListArray
     }
     public boolean workerIsEmpty(int numberList)
     {
-        List pointer=Begin;
+        Table pointer=Begin;
         while (pointer!=null)
         {
             if (pointer.getListNum()==numberList)
@@ -174,13 +288,13 @@ public class ListArray
             }
             pointer=pointer.getNext();
         }
-        System.out.println("Î÷åðåäü ñ äàííûì íîìåðîì íå íàéäåíà.");
+        System.out.println("������� � ������ ������� �� �������.");
         return false;
     }
 
     public void abort(int numberList)
     {
-        List pointer=Begin;
+        Table pointer=Begin;
         while (pointer!=null)
         {
             if (pointer.getListNum()==numberList)
@@ -190,11 +304,18 @@ public class ListArray
             }
             pointer=pointer.getNext();
         }
+        try {
+            this.file.WriteIntoExcel(this.Begin);;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public void abort(int numberList, long ChatID)
     {
-        List pointer=Begin;
+        Table pointer=Begin;
         while (pointer!=null)
         {
             if (pointer.getListNum()==numberList)
@@ -204,11 +325,18 @@ public class ListArray
             }
             pointer=pointer.getNext();
         }
+        try {
+            this.file.WriteIntoExcel(this.Begin);;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public int outQueue(int numberList, long ChatID)
     {
-        List pointer=Begin;
+        Table pointer=Begin;
         while (pointer!=null)
         {
             if (pointer.getListNum()==numberList)
@@ -222,7 +350,7 @@ public class ListArray
 
     public void accessSwitch(int numberList)
     {
-        List pointer=Begin;
+        Table pointer=Begin;
         while (pointer!=null)
         {
             if (pointer.getListNum()==numberList)
@@ -236,7 +364,7 @@ public class ListArray
 
     public boolean accessStatus(int numberList)
     {
-        List pointer=Begin;
+        Table pointer=Begin;
         while (pointer!=null)
         {
             if (pointer.getListNum()==numberList)
@@ -249,7 +377,7 @@ public class ListArray
     }
     public int userInQueue(long ChatID)
     {
-        List pointer=Begin;
+        Table pointer=Begin;
         while (pointer!=null)
         {
             if (pointer.userInQueue(ChatID)==true)
@@ -260,4 +388,137 @@ public class ListArray
         }
         return -1;
     }
+    public int userInProcessor(long ChatID)
+    {
+        Table pointer=Begin;
+        while (pointer!=null)
+        {
+            if (pointer.IsInProcessor(ChatID)==true)
+            {
+                return pointer.getListNum();
+            }
+            pointer=pointer.getNext();
+        }
+        return -1;
+    }
+    public int getQueue(int ListNum)
+    {
+        Table pointer=Begin;
+        while (pointer!=null)
+        {
+            if (pointer.getListNum()==ListNum)
+            {
+                return pointer.getQueue();
+            }
+            pointer=pointer.getNext();
+        }
+        return -1;
+    }
+    public int getMaxTableSize()
+    {
+        int max=-1;
+        Table pointer=Begin;
+        while (pointer!=null)
+        {
+            if(pointer.getTableSize()>max)
+                max=pointer.getTableSize();
+            pointer=pointer.getNext();
+        }
+        return max;
+    }
+
+    public long returnChatID(int Queue,int ListNum)
+    {
+        try {
+            AltherThread.sleep(50);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        Table pointer=Begin;
+        while (pointer!=null)
+        {
+            if (pointer.getListNum()==ListNum)
+            {
+                return pointer.returnChatID(Queue);
+            }
+            pointer=pointer.getNext();
+        }
+        return -1;
+    }
+
+    public int returnNumber(int Queue,int ListNum)
+    {
+        try {
+            AltherThread.sleep(50);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        Table pointer=Begin;
+        while (pointer!=null)
+        {
+            if (pointer.getListNum()==ListNum)
+            {
+                return pointer.returnNumber(Queue);
+            }
+            pointer=pointer.getNext();
+        }
+        return -1;
+    }
+    public int getTableSize(int ListNum)
+    {
+        Table pointer=Begin;
+        while (pointer!=null)
+        {
+            if (pointer.getListNum()==ListNum)
+            {
+                return pointer.getTableSize();
+            }
+            pointer=pointer.getNext();
+        }
+        return -1;
+    }
+
+    public int getWorkerNumber(int ListNum)
+    {
+        Table pointer=Begin;
+        while (pointer!=null)
+        {
+            if (pointer.getListNum()==ListNum)
+            {
+                return pointer.getWorkerNumber();
+            }
+            pointer=pointer.getNext();
+        }
+        return -1;
+    }
+
+    public long getWorkerChatID(int ListNum)
+    {
+        Table pointer=Begin;
+        while (pointer!=null)
+        {
+            if (pointer.getListNum()==ListNum)
+            {
+                return pointer.getWorkerChatID();
+            }
+            pointer=pointer.getNext();
+        }
+        return -1;
+    }
+
+    public Table getBegin() {
+        return Begin;
+    }
+
+    public void setBegin(Table begin) {
+        Begin = begin;
+
+    }
+    public ListArray getNext() {
+        return this.getNext();
+    }
+
+
 }
