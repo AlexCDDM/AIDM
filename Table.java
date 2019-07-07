@@ -308,6 +308,4 @@ public class Table
     public Info getBegin() {
         return this.Begin;
     }
-
-
 }

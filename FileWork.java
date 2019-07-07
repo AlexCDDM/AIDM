@@ -1,9 +1,7 @@
-import org.apache.http.impl.io.SocketOutputBuffer;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -39,31 +37,34 @@ public class FileWork
         Workbook book = new XSSFWorkbook();
         int n = 0;
         List = ListIn;
-        element = List.getBegin();
-        while (List != null)
+        if (List!=null)
         {
-            n++;
-            String nameSheet = String.valueOf(n);
-            Sheet sheet = book.createSheet(nameSheet);
-            int numstr = 1;
-            Row row = sheet.createRow(0);
-            Cell TimeList = row.createCell(0);
-            TimeList.setCellValue(Timer);
-            Cell NumList = row.createCell(1);
-            NumList.setCellValue(n);
-            Cell ValueList = row.createCell(2);
-            ValueList.setCellValue(List.getTableSize());
-            while (element != null)
+            element = List.getBegin();
+            while (List != null)
             {
-                row = sheet.createRow(numstr);
-                Cell CellChatID = row.createCell(0);
-                CellChatID.setCellValue(element.getChatID());
-                Cell CellNumber = row.createCell(1);
-                CellNumber.setCellValue(element.getNumber());
-                element = element.getNext();
-                numstr++;
+                n++;
+                String nameSheet = String.valueOf(n);
+                Sheet sheet = book.createSheet(nameSheet);
+                int numstr = 1;
+                Row row = sheet.createRow(0);
+                Cell TimeList = row.createCell(0);
+                TimeList.setCellValue(Timer);
+                Cell NumList = row.createCell(1);
+                NumList.setCellValue(n);
+                Cell ValueList = row.createCell(2);
+                ValueList.setCellValue(List.getTableSize());
+                while (element != null)
+                {
+                    row = sheet.createRow(numstr);
+                    Cell CellChatID = row.createCell(0);
+                    CellChatID.setCellValue(element.getChatID());
+                    Cell CellNumber = row.createCell(1);
+                    CellNumber.setCellValue(element.getNumber());
+                    element = element.getNext();
+                    numstr++;
+                }
+                List=List.getNext();
             }
-            List=List.getNext();
         }
         book.write(new FileOutputStream(file,false));  // вместо file должен быть путь к фалу
         book.close();
@@ -115,6 +116,7 @@ public class FileWork
     }
 
     public String ReadLogin () throws Exception {
+        @SuppressWarnings("resource")
         HSSFWorkbook AdminBook = new HSSFWorkbook(new FileInputStream("fileName"));
         HSSFSheet sheet = AdminBook.getSheet("admin");
         HSSFRow row = sheet.getRow(0);
@@ -122,6 +124,7 @@ public class FileWork
         return Login.toString();
     }
     public String ReadPassword () throws Exception {
+        @SuppressWarnings("resource")
         HSSFWorkbook AdminBook = new HSSFWorkbook(new FileInputStream("fileName"));
         HSSFSheet sheet = AdminBook.getSheet("admin");
         HSSFRow row = sheet.getRow(0);
